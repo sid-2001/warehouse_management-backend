@@ -38,27 +38,17 @@ console.log("server is working");
 
 
 
-// const jobschema=new mong.Schema(
-// {
-   
-//    name:String,
-//   cropage:Number,
-//   cropcost:Number,
-//     city:String,
-//     category:String,
-//   weight:Number,
-//     mobile:Number
-    
-    
-// })
 
 const compartment=new mong.Schema({
 
-Content:String,
+name:String,
+userid:String,
+Temp:Number,
+Humid:Number,
 Notification:String,
-temprature:Number,
-Humidity:Number,
-Balance:Number
+status:String,
+
+commodity:String
 
 });
 
@@ -67,18 +57,17 @@ Balance:Number
 const memberschema=new mong.Schema({
     
     name:String,
-  adress:String,
+    adress:String,
     email:String,
     mobile:Number,
     passward:String,
-    appliedto:[String]
+    compartments:[String],
+    Balance:Number
     
 })
 
 
 const user=mong.model("user",memberschema);
-
-
 
 const Compartment=mong.model("compartment",compartment);
 
@@ -89,47 +78,23 @@ const Compartment=mong.model("compartment",compartment);
 
 
 
+const query = 'clientId=android-app&type=request&createdAt=1550493108338&action=setPowerState&value={"state": "On"}';
+var request = require("request");
+app.get("/on",(req,res)=>{
+    var options = { method: 'GET',
+    url: 'https://api.sinric.pro/api/v1/devices/63ecc2f01bb4e19c119cbab5/action?' + query,
+    headers: 
+     { Authorization: 'Bearer ',
+      'Content-Type': 'application/x-www-form-urlencoded' 
+     }
+    };
+    request(options, function (error, response, body) {
+        console.log(response);
+        if (error) throw new Error(error);
+       console.log(body);
+      })
+})
 
-// app.post('/fogetpassword',function(req,res){
-// console.log("a request has been therein the system");
-//     console.log(req.body);
-// 	const transport = nodemailer.createTransport({
-// 		service:"gmail",
-// 		host: "smtp.gmail.com",
-// 		port: 465,
-// 		auth: {
-// 			user: "automater420@gmail.com",
-// 			pass: "hrszqqhjzejspvjx"
-// 		}
-// 	})
-// 	console.log(transport)
-
-// 	transport.sendMail({
-// 		from: "dm29phase1@gmail.com",
-// 		to: req.body.email,
-// 		subject: "Meeting Nofication",
-// 		html: `<div className="email" style="
-//         border: 1px solid black;
-//         padding: 20px;
-//         font-family: sans-serif;
-//         line-height: 2;
-//         font-size: 20px; 
-//         ">
-//         <h2>Here is your metting link</h2>
-// 		<h3>Hi your ${req.body.Company} Meeting has been schedule for ${req.body.Schedule} Please Join by Clicking on the Below Link</h3>
-// 		<a href=${req.body.Link}>${req.body.Link}</a>
-//         <br>
-// 	    <span>Siddhant Kaushik<br>AllSafe<span>
-//          </div>
-//     `
-// 	}).then((result)=>{
-//      console.log(result);
-// 		res.render("otp.ejs");
-
-
-
-// });
-// });
 
 
 app.post("/signin",function(req,res){
@@ -163,10 +128,13 @@ app.post("/signin",function(req,res){
     
 })
 app.get("/",(req,res)=>{
-console.log("the server"+req);
-res.send("hehrs");
+console.log("the server is running"+req);
+
 
 })
+
+
+app.post("/api/getuserdata")
 
 app.post('/temp',(req,res)=>{
 
@@ -216,4 +184,26 @@ app.post("/updateddata",(req,res)=>{
     
 
   
+})
+
+app.post('/api/showallcompartment',(req,res)=>{
+console.log(req.body)
+// console.log("the backed request is"+req.body);
+if(req.body.userid==null){
+
+    res.send(["nothing"]);
+}
+else{
+Compartment.find({userid:req.body.userid},function(err,result){
+if(!err){
+
+    res.send(result);
+}
+else{
+
+    res.send("notok");
+}
+
+})
+}
 })
